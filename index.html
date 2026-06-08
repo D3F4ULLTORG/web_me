@@ -26,18 +26,18 @@
     /* Instead of fully hiding the header on scroll, make it compact and subtly recede.
        This keeps controls accessible while reducing obstruction. */
     .glass-header.hide-header {
-      opacity: 0.66;
-      transform: translateX(-50%) translateY(-8px) scale(0.995);
-      pointer-events: auto;
+      opacity: 0;
+      transform: translateX(-50%) translateY(-110%) scale(0.99);
+      pointer-events: none;
       box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-      transition: opacity 360ms cubic-bezier(.22,.9,.35,1), transform 360ms cubic-bezier(.22,.9,.35,1), backdrop-filter 240ms ease;
+      transition: opacity 280ms cubic-bezier(.22,.9,.35,1), transform 280ms cubic-bezier(.22,.9,.35,1), backdrop-filter 240ms ease;
       -webkit-backdrop-filter: blur(18px) saturate(1.6);
     }
     .floating-header {
       position: fixed;
       top: 1rem;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translateX(-50%) translateY(0);
       width: min(96%, 1100px);
       border-radius: 32px;
       padding: 1rem 1.25rem;
@@ -164,7 +164,11 @@
       .social-button { min-width: 60px; min-height: 60px; padding: 0.75rem; }
       .social-lottie { width: 48px; height: 48px; }
       .scroll-hint { bottom: 1rem; }
-      .float-el { display: none; }
+      .float-el { display: block; }
+      .float-el { opacity: 0.95; }
+      .glass-card { min-width: 52px; min-height: 52px; padding: 0.85rem; }
+      .glass-card lottie-player { width: 32px !important; height: 32px !important; }
+      .float-el { transform: translateZ(0) !important; }
     }
     
     @media (max-width: 480px) {
@@ -450,7 +454,7 @@
         <a id="footerInstagramBtn" href="https://www.instagram.com/mostafa_6_21/" target="_blank" rel="noopener noreferrer" class="social-button reveal-item rounded-full p-4 flex items-center justify-center">
           <lottie-player class="social-lottie" autoplay loop mode="normal" src="icons/instagram.json" style="width:60px;height:60px;"></lottie-player>
         </a>
-        <a id="footerTelegramBtn" href="https://t.me/mostafa_6_21" target="_blank" rel="noopener noreferrer" class="social-button reveal-item rounded-full p-4 flex items-center justify-center">
+        <a id="footerTelegramBtn" href="https://t.me/mostafa_6_21?text=سلام%20وقت%20بخیر" target="_blank" rel="noopener noreferrer" class="social-button reveal-item rounded-full p-4 flex items-center justify-center">
           <lottie-player class="social-lottie" autoplay loop mode="normal" src="icons/telegram.json" style="width:60px;height:60px;"></lottie-player>
         </a>
         <a id="footerRubikaBtn" href="https://rubika.ir/@D3F4ULLT" target="_blank" rel="noopener noreferrer" class="social-button reveal-item rounded-full p-4 flex items-center justify-center">
@@ -488,17 +492,20 @@
       header.classList.add('hide-header');
     }
 
-    function scheduleHeaderReveal(delay = 260) {
-      if (hideHeaderTimeout) clearTimeout(hideHeaderTimeout);
-      hideHeaderTimeout = setTimeout(showHeader, delay);
-    }
-
     function handleScrollActivity() {
       hideHeader();
       if (scrollStopTimeout) clearTimeout(scrollStopTimeout);
       scrollStopTimeout = setTimeout(() => {
-        scheduleHeaderReveal(180);
-      }, 240);
+        if (scrollMode === '3D') {
+          showHeader();
+        }
+      }, 380);
+    }
+
+    function ensureHeaderVisible() {
+      if (scrollMode === '3D') {
+        showHeader();
+      }
     }
 
     function updateTargetZ(delta) {
@@ -526,6 +533,7 @@
       progressBar.style.width = '0%';
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
+      showHeader();
     }
 
     window.addEventListener('wheel', (e) => {
@@ -578,7 +586,27 @@
 
     window.addEventListener('touchend', () => {
       if (scrollStopTimeout) clearTimeout(scrollStopTimeout);
-      scrollStopTimeout = setTimeout(() => scheduleHeaderReveal(180), 260);
+      scrollStopTimeout = setTimeout(() => {
+        if (scrollMode === '3D') showHeader();
+      }, 240);
+    });
+
+    window.addEventListener('touchcancel', () => {
+      if (scrollStopTimeout) clearTimeout(scrollStopTimeout);
+      scrollStopTimeout = setTimeout(() => {
+        if (scrollMode === '3D') showHeader();
+      }, 240);
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (scrollStopTimeout) clearTimeout(scrollStopTimeout);
+      scrollStopTimeout = setTimeout(() => {
+        if (scrollMode === '3D') showHeader();
+      }, 240);
+    });
+
+    window.addEventListener('pointerdown', () => {
+      if (scrollStopTimeout) clearTimeout(scrollStopTimeout);
     });
 
     function animate() {
